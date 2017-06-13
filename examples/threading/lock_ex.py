@@ -19,7 +19,7 @@ def example2():
     with lock:
         print("in thread!!!")
         time.sleep(2)
-    print("release")
+        print("release")
 
 
 threads = [threading.Thread(target=example2) for x in range(10)]
