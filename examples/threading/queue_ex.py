@@ -1,21 +1,32 @@
 import threading
 import queue
+from time import sleep
+
 
 queue = queue.Queue()
+try_list = []
 
 
 def worker():
-    while True:
-        print("wait new task")
-        task = queue.get()
-        print("run task", task)
+    name = threading.currentThread().name
+    sleep(1)
+    if name == "write":
+        print("write")
+        for x in range(1000):
+            try_list.append(x)
+            sleep(0.1)
+        print("finish write")
+    elif name == "read":
+        sleep(1)
+        print("read")
+        for x in try_list:
+            print(x)
+            sleep(0.05)
 
 
-threads = [threading.Thread(target=worker) for x in range(2)]
-
-
-for x in range(100):
-    queue.put(x)
+threads = []
+threads.append(threading.Thread(target=worker, name='write'))
+threads.append(threading.Thread(target=worker, name='read'))
 
 for thread in threads:
     thread.start()
@@ -23,3 +34,6 @@ for thread in threads:
 
 for thread in threads:
     thread.join()
+
+
+from pprint import pprint

@@ -4,7 +4,7 @@ import requests
 
 
 q = queue.Queue()
-sem = threading.BoundedSemaphore(2)
+sem = threading.BoundedSemaphore(20)
 lock = threading.Lock()
 result = 0
 
@@ -21,9 +21,11 @@ def worker():
             url = q.get(timeout=10)
         except queue.Empty:
             break
+
         with sem:
             print("get", url)
             r = request.get(url)
+
         r = r.json()['result']
         with lock:
             result += r
@@ -31,7 +33,7 @@ def worker():
 
 threads = []
 
-for x in range(4):
+for x in range(40):
     t = threading.Thread(target=worker)
     threads.append(t)
     t.start()
