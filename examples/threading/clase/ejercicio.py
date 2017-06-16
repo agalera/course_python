@@ -18,7 +18,7 @@ def worker():
     request = requests.Session()
     while True:
         try:
-            url = queue.get(timeout=10)
+            url = q.get(timeout=10)
         except queue.Empty:
             break
         with sem:
